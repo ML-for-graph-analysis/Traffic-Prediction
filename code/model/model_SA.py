@@ -210,13 +210,15 @@ class gcn(nn.Module): # gcn(dilation_channels,residual_channels,dropout,support_
         out = [x]
 
         for a in support:
-            x1 = self.spatialAttention(self.nconv_original(x,a))
+            # x1 = self.spatialAttention(self.nconv_original(x,a))
+            x1 = self.nconv_original(self.spatialAttention(x), a)
             out.append(x1)
 
             for k in range(2, self.order + 1):
-                x2 = self.spatialAttention(self.nconv_original(x1,a))
+                # x2 = self.spatialAttention(self.nconv_original(x1,a))
+                x2 = self.nconv_original(self.spatialAttention(x1), a)
                 out.append(x2)
-                x1 = x2
+                # x1 = x2
 
         # for idx, a in enumerate(support):
         #     if (idx !=2 ): # fw, bw
