@@ -111,7 +111,7 @@ class conv2d_(nn.Module):
             torch.nn.init.zeros_(self.conv.bias)
 
     def forward(self, x):
-        x = x.permute(0, 3, 2, 1)
+        # x = x.permute(0, 3, 2, 1)
         x = F.pad(
             x,
             (
@@ -128,7 +128,7 @@ class conv2d_(nn.Module):
         # x = self.pair_norm(x)
         if self.activation is not None:
             x = F.relu_(x)
-        return x.permute(0, 3, 2, 1)
+        return x
 
 
 class FC(nn.Module):
@@ -169,8 +169,15 @@ class FC(nn.Module):
 
 
 class ST_Attention(nn.Module):
-    def __init__(self, K, d):
+    def __init__(self, K, d, c_in):
         super(ST_Attention, self).__init__()
+        """
+        attention mechanism
+        X:      [batch_size, num_step, num_vertex, D]
+        K:      number of attention heads           # default=8
+        d:      dimension of each attention outputs # default=8
+        return: [batch_size, num_step, num_vertex, D]
+        """
         D = K * d
         self.d = d
         self.K = K
@@ -179,42 +186,38 @@ class ST_Attention(nn.Module):
         # self.FC_v = FC(input_dims=2 * D, units=D, activations=F.relu)
         # self.FC = FC(input_dims=D, units=D, activations=F.relu)
 
-        self.FC_q = FC(input_dims=2 * D, units=2 * D, activations=F.relu)
+        self.FC_q = FC(input_dims=c_in, units=D, activations=F.relu)
         # pdb.set_trace()
-        self.FC_k = FC(input_dims=2 * D, units=2 * D, activations=F.relu)
-        self.FC_v = FC(input_dims=2 * D, units=2 * D, activations=F.relu)
+        self.FC_k = FC(input_dims=c_in, units=D, activations=F.relu)
+        self.FC_v = FC(input_dims=c_in, units=D, activations=F.relu)
 
-        self.FC = FC(input_dims=2 * D, units=2 * D, activations=F.relu)
+        self.FC = FC(input_dims=D, units=c_in, activations=F.relu)
 
     def forward(self, X):
         # (batch, feature, node, window)
-        # x.shape == [64, 32, 207, 12~1] -> [64, 12~1, 207, 32]
-        X = torch.einsum("bfnw -> bwnf", (X))
+        # x.shape == [64, 32, 207, 12~1]
 
         batch_size = X.shape[0]
         # X = torch.cat((X, STE), dim=-1)
-
         # [batch_size, num_step, num_vertex, K * d]
         query = self.FC_q(X)  #
         key = self.FC_k(X)
         value = self.FC_v(X)
         # [K * batch_size, num_step, num_vertex, d]
-        query = torch.cat(torch.split(query, self.K, dim=-1), dim=0)
-        key = torch.cat(torch.split(key, self.K, dim=-1), dim=0)
-        value = torch.cat(torch.split(value, self.K, dim=-1), dim=0)
+        query = torch.cat(torch.split(query, self.K, dim=1), dim=0)
+        key = torch.cat(torch.split(key, self.K, dim=1), dim=0)
+        value = torch.cat(torch.split(value, self.K, dim=1), dim=0)
         # [K * batch_size, num_step, num_vertex, num_vertex]
         attention = torch.matmul(query, key.transpose(2, 3))
         attention /= self.d ** 0.5
-        attention = F.softmax(attention, dim=-1)
+        attention = F.softmax(attention, dim=1)
         # [batch_size, num_step, num_vertex, D]
         X = torch.matmul(attention, value)
         X = torch.cat(
-            torch.split(X, batch_size, dim=0), dim=-1
+            torch.split(X, batch_size, dim=0), dim=1
         )  # orginal K, change to batch_size
         X = self.FC(X)
         del query, key, value, attention
-
-        X = torch.einsum("bwnf -> bfnw", (X))
 
         return X
 
@@ -308,9 +311,9 @@ class gwnet(nn.Module):
         self.dropout = dropout
         self.blocks = blocks
         self.layers = layers
-        self.gcn_bool = gcn_bool
-        self.att_bool = att_bool
-        self.addaptadj = addaptadj
+        self.gcn_bool = True
+        self.att_bool = True
+        self.addaptadj = True
 
         self.filter_convs = nn.ModuleList()
         self.gate_convs = nn.ModuleList()
@@ -334,7 +337,7 @@ class gwnet(nn.Module):
         if supports is not None:
             self.supports_len += len(supports)
 
-        if gcn_bool and addaptadj:
+        if self.gcn_bool and self.addaptadj:
             if aptinit is None:
                 if supports is None:
                     self.supports = []
@@ -411,7 +414,9 @@ class gwnet(nn.Module):
                     )
 
                 if self.att_bool:
-                    self.att_conv.append(ST_Attention(8, 8))
+                    self.att_conv.append(
+                        ST_Attention(4, residual_channels, residual_channels)
+                    )
 
         self.end_conv_1 = nn.Conv2d(
             in_channels=skip_channels,
