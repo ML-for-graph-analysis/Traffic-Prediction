@@ -13,4 +13,4 @@ Dataset: Metr-LA, PeMS-Bay
 
 # Hyperarameter 
 
-\# of heads : 2
+\# of attention heads : 2
