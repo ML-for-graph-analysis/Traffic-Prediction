@@ -13,7 +13,7 @@ Dataset: Metr-LA, PeMS-Bay
 ### Model 1.2
 ```python train.py --data data/METR-LA --savehorizon True --sheetname Model2_METR-LA_60min --adjdata data/sensor_graph/adj_mx.pkl --batch_size 32 --adjtype doubletransition```
 
-```python train.py --data data/PEMS-BAY --savehorizon True --sheetname Model2_PEMS-BAY_60min --num_nodes 325 --adjdata data/sensor_graph/adj_mx_bay.pkl batch_size 32 --adjtype doubletransition```
+```python train.py --data data/PEMS-BAY --savehorizon True --sheetname Model2_PEMS-BAY_60min --num_nodes 325 --adjdata data/sensor_graph/adj_mx_bay.pkl batch_size 32 --nhid 16 --adjtype doubletransition```
 
 
 ### Model 2
