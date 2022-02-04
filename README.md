@@ -5,7 +5,7 @@ This is the pytorch implementation for class project of AIGS703I(인공지능특
 
 This problem is challenging due to the complicated and dynamic spatio-temporal dependencies between different regions in the road network.
 
-It is mainly based on [GraphWaveNet](https://github.com/nnzhan/Graph-WaveNet) and refers to other state-of-date models.
+Models are mainly based on [GraphWaveNet](https://github.com/nnzhan/Graph-WaveNet) and refer to other state-of-date models.
 
 Dataset: Metr-LA, PeMS-Bay
 
