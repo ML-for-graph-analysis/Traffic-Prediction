@@ -7,6 +7,8 @@ It is based on [GraphWaveNet](https://github.com/nnzhan/Graph-WaveNet)
 
 Dataset: Metr-LA, PeMS-Bay
 
+# EDA 
+
 * Role analysis of traffic graph data
 * Community analysis of traffic graph data(Louvain.ipynb)
 
