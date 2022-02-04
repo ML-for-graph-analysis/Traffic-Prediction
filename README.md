@@ -1,7 +1,7 @@
 Traffic-Prediction
 =================
 
-This is pytorch implementation for class project of AIGS703I(인공지능특론:그래프분석을 위한 기계학습)
+This is the pytorch implementation for class project of AIGS703I(인공지능특론:그래프분석을 위한 기계학습)
 
 Dataset: Metr-LA, PeMS-Bay
 
