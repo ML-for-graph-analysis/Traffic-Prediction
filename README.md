@@ -1,4 +1,8 @@
-# Traffic-Prediction
+Traffic-Prediction
+=================
+
+This is class project of AIGS703I(인공지능특론:그래프분석을 위한 기계학습)
+
 Dataset: Metr-LA, PeMS-Bay
 
 * Role analysis of traffic graph data
