@@ -3,6 +3,8 @@ Traffic-Prediction
 
 This is the pytorch implementation for class project of AIGS703I(인공지능특론:그래프분석을 위한 기계학습)
 
+It is based on [GraphWaveNet](https://github.com/nnzhan/Graph-WaveNet)
+
 Dataset: Metr-LA, PeMS-Bay
 
 * Role analysis of traffic graph data
